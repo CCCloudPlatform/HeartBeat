@@ -9,41 +9,72 @@ filebeat.config:
     path: ${path.config}/modules.d/*.yml
     reload.enabled: false
 
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/*.log
+output.logstash:
+  enabled: true
+  hosts: ["logstash:5044"]
+
+# filebeat.autodiscover:
+#   providers:
+#     # The Docker autodiscover provider automatically retrieves logs from Docker
+#     # containers as they start and stop.
+#     - type: docker
+#       hints.enabled: true
+#       hints.default_config:
+#         type: container
+#         paths:
+#           - /var/lib/docker/containers/${data.container.id}/*-json.log
+#       templates:
+#         - condition:
+#             contains:
+#               docker.container.image: elasticsearch
+#           config:
+#             - module: elasticsearch
+#               server:
+#                 input:
+#                   type: container
+#                   paths:
+#                     - /var/lib/docker/containers/${data.container.id}/*-json.log
+
+# autodiscover
 filebeat.autodiscover:
   providers:
-    # The Docker autodiscover provider automatically retrieves logs from Docker
-    # containers as they start and stop.
     - type: docker
       hints.enabled: true
-      hints.default_config:
-        type: container
-        paths:
-          - /var/lib/docker/containers/${data.container.id}/*-json.log
       templates:
-        - condition:
-            contains:
-              docker.container.image: elasticsearch
+        - condition.contains:
+            docker.container.image: nginx
           config:
-            - module: elasticsearch
-              server:
-                input:
-                  type: container
-                  paths:
-                    - /var/lib/docker/containers/${data.container.id}/*-json.log
+            - module: nginx
+              access.input:
+                type: docker
+                containers:
+                  ids: "${data.docker.container.id}"
+                  stream: "stdout"
+              error.input:
+                type: docker
+                containers:
+                  ids: "${data.docker.container.id}"
+                  stream: "stderr"
 
 processors:
   - add_cloud_metadata: ~
 
-monitoring:
-  enabled: true
-  elasticsearch:
-    username: beats_system
-    password: ${BEATS_SYSTEM_PASSWORD}
+# elasticsearch monitoring
+# monitoring:
+#   enabled: true
+#   elasticsearch:
+#     username: beats_system
+#     password: ${BEATS_SYSTEM_PASSWORD}
 
-output.elasticsearch:
-  hosts: [ http://elasticsearch:9200 ]
-  username: filebeat_internal
-  password: ${FILEBEAT_INTERNAL_PASSWORD}
+# output.elasticsearch:
+#   hosts: [http://elasticsearch:9200]
+#   username: filebeat_internal
+#   password: ${FILEBEAT_INTERNAL_PASSWORD}
 
 ## HTTP endpoint for health checking
 ## https://www.elastic.co/guide/en/beats/filebeat/current/http-endpoint.html
