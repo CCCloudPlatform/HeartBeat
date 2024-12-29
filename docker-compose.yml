@@ -104,6 +104,27 @@ services:
       - elasticsearch
     restart: unless-stopped
 
+  # Nginx 서비스 추가
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - "80:80"  # 외부 포트와 Nginx 포트 매핑
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # 커스터마이즈한 nginx.conf
+      - ./nginx/log:/var/log/nginx  # Nginx 로그 파일
+      - ./nginx/index.html:/usr/share/nginx/html/index.html
+    networks:
+      - elk  # ELK 네트워크에 연결
+    restart: unless-stopped  # 서비스가 종료되지 않도록 설정
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"  # 로그 크기 제한
+
 networks:
   elk:
     driver: bridge
