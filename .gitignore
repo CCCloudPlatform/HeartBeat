@@ -5,6 +5,7 @@ prometheus/volume/chunks_head/
 prometheus/volume/*-meta.json
 prometheus/volume/*-index
 prometheus/volume/*-tombstones
+prometheus/config/query_log_file.log
 
 # Grafana 기본 데이터 디렉토리 (Git 관리 X)
 grafana/volume/grafana.db
