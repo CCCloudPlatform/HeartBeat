@@ -16,13 +16,6 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
     networks:
       - promnet
 
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
-    ports:
-      - "9100:9100"
-    restart: unless-stopped
-
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -35,6 +28,22 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
       - ./grafana/provisioning:/etc/grafana/provisioning    # 지정한 대시보드 불러오기 및 프로메테우스 uid 고정(충돌방지)
       - GF_SECURITY_ADMIN_PASSWORD=admin  # 초기 비밀번호 지정
     restart: always
+    networks:
+      - promnet
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
     networks:
       - promnet
 
