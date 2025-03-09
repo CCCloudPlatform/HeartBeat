@@ -1,12 +1,12 @@
 version: '3.7'  # 파일 규격 버전
 services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
+    user: "0:0"
     container_name: prometheus
     volumes:
       - ./prometheus/config:/etc/prometheus
       - ./prometheus/volume:/prometheus
-      #- prometheus_data:/prometheus
     ports:
       - 9090:9090 # 접근 포트 설정 (컨테이너 외부:컨테이너 내부)
     command: # web.enalbe-lifecycle은 api 재시작없이 설정파일들을 reload 할 수 있게 해줌
@@ -16,40 +16,28 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
     networks:
       - promnet
 
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
     container_name: grafana
-    # user: "$GRA_UID:$GRA_GID"
+    user: "0:0"
     ports:
       - 3000:3000 # 접근 포트 설정 (컨테이너 외부:컨테이너 내부)
     volumes:
-      - ./grafana/volume:/var/lib/grafana #디렉터리에 저장
-      #- grafana_data:/var/lib/grafana #볼륨 생성
+      - ./grafana/volume:/var/lib/grafana
+      - ./grafana/dashboards:/var/lib/grafana/dashboards    # 대시보드 지정
+      - ./grafana/provisioning:/etc/grafana/provisioning    # 지정한 대시보드 불러오기 및 프로메테우스 uid 고정(충돌방지)
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # 초기 비밀번호 지정
     restart: always
-    networks:
-      - promnet
-  
-  node_exporter:
-    image: prom/node-exporter
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    ports:
-      - "9100:9100"
     networks:
       - promnet
 
 networks:
   promnet:
     driver: bridge
-
-
-volumes:
-  prometheus_data:
-  grafana_data:
