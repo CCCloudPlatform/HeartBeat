@@ -7,18 +7,17 @@ prometheus/volume/*-index
 prometheus/volume/*-tombstones
 
 # Grafana 기본 데이터 디렉토리 (Git 관리 X)
-grafana_data/
-grafana/grafana.db
-grafana/log/
-grafana/plugins/
+grafana/volume/grafana.db
+grafana/volume/log/
+grafana/volume/plugins/
 
 # Grafana 세션 정보 (사용자 설정 변경 시 충돌 방지)
-grafana/data/sessions/
+grafana/volume/data/sessions/
 
 # Grafana 캐시 및 런타임 파일 제외
-grafana/data/png/
-grafana/data/tts_cache/
-grafana/data/log/
+grafana/volume/data/png/
+grafana/volume/data/tts_cache/
+grafana/volume/data/log/
 
 # Grafana 프로비저닝된 대시보드는 제외하지 않음 (Git으로 관리)
 !grafana/provisioning/dashboards.yaml
