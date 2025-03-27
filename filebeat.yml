@@ -1,0 +1,16 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/*.log  # OS 로그 파일 경로 (필요에 따라 수정)
+    fields:
+      log_type: "system_logs"  # 로그 타입 태깅
+    json.keys_under_root: true  # JSON 형태의 로그 처리
+
+output.kafka:
+  hosts: ["kafka:9092"]
+  topic: "logs"
+  partition.round_robin:
+    reachable_only: true
+  required_acks: 1
+  compression: gzip
