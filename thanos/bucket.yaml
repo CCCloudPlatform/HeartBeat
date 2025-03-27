@@ -1,0 +1,7 @@
+type: S3
+config:
+  endpoint: "192.168.0.133:9000"  # VM2의 실제 IP
+  access_key: "thanos"
+  secret_key: "thanos123!"
+  bucket: "thanos-data"
+  insecure: true  # 테스트 환경용

@@ -12,9 +12,29 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
     command: # web.enalbe-lifecycle은 api 재시작없이 설정파일들을 reload 할 수 있게 해줌
       - '--web.enable-lifecycle'
       - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.retention.time=2h'  # 로컬 보존 시간
+      - '--external-label=cluster=prod'     # 클러스터 식별 레이블
+
     restart: always
     networks:
       - promnet
+  
+  thanos-sidecar:
+    image: thanosio/thanos:v0.37.2
+    command:
+      - sidecar
+      - --http-address=0.0.0.0:10902
+      - --grpc-address=0.0.0.0:10901
+      - --prometheus.url=http://prometheus:9090
+      - --objstore.config-file=/etc/thanos/bucket.yaml
+    volumes:
+      - ./thanos/bucket.yaml:/etc/thanos/bucket.yaml  # MinIO connection
+    ports:
+      - "10901:10901"  
+    networks:
+      - promnet
+    depends_on:
+      - prometheus
 
   grafana:
     image: grafana/grafana:latest
