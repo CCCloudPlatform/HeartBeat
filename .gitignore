@@ -27,3 +27,7 @@ grafana/volume/data/log/
 # Grafana 대시보드 JSON 파일은 Git으로 관리
 !grafana/dashboards/*.json
 
+.DS_Store
+
+# minio 데이터 저장소 하위 파일들 초기 세팅시 제외 (Git 관리 X) 
+minio_data/
