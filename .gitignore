@@ -30,4 +30,5 @@ grafana/volume/data/log/
 .DS_Store
 
 # minio 데이터 저장소 하위 파일들 초기 세팅시 제외 (Git 관리 X) 
-minio_data/
+minio_data/*
+!minio_data/.gitkeep
