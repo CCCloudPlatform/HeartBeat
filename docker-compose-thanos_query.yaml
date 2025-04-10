@@ -21,6 +21,7 @@ services:
       - query
       - --http-address=0.0.0.0:10904
       - --store=thanos-sidecar:10901  # VM1의 실제 IP 입력
+      - --store=thanos-sidecar:10901  # VM2의 실제 IP 입력
       - --query.replica-label=replica  # 데이터 중복 제거
     ports:
       - "10904:10904"

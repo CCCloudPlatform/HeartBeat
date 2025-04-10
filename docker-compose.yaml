@@ -13,7 +13,7 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
       - '--web.enable-lifecycle'
       - '--config.file=/etc/prometheus/prometheus.yaml'
       - '--storage.tsdb.retention.time=2h'  # 로컬 보존 시간
-      - '--external-label=cluster=prod'     # 클러스터 식별 레이블
+      #- '--external-label=cluster=prod'     # 클러스터 식별 레이블
 
     restart: always
     networks:
@@ -46,7 +46,8 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
       - ./grafana/volume:/var/lib/grafana
       - ./grafana/dashboards:/var/lib/grafana/dashboards    # 대시보드 지정
       - ./grafana/provisioning:/etc/grafana/provisioning    # 지정한 대시보드 불러오기 및 프로메테우스 uid 고정(충돌방지)
-      - GF_SECURITY_ADMIN_PASSWORD=admin  # 초기 비밀번호 지정
+    environment:  # ✅ 환경 변수 설정
+    - GF_SECURITY_ADMIN_PASSWORD=admin
     restart: always
     networks:
       - promnet
