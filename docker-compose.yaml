@@ -5,6 +5,7 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
     user: "0:0"
     container_name: prometheus
     volumes:
+      - ./prometheus_data:/prometheus 
       - ./prometheus/config:/etc/prometheus
       - ./prometheus/volume:/prometheus
     ports:
@@ -32,6 +33,7 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
       - --prometheus.url=http://prometheus:9090
       - --objstore.config-file=/etc/thanos/bucket.yaml
     volumes:
+      - ./prometheus_data:/prometheus # Prometheus와 동일 경로 사용
       - ./thanos/bucket.yaml:/etc/thanos/bucket.yaml  # MinIO connection
     ports:
       - "10901:10901"  
