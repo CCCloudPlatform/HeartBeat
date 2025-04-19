@@ -2,12 +2,12 @@ version: '3.7'  # 파일 규격 버전
 services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
   prometheus:
     image: prom/prometheus:latest
-    user: "0:0"
+    user: "1000:1000" # 기본 nobody 사용자
     container_name: prometheus
     volumes:
-      - ./prometheus_data:/prometheus 
+      - prometheus_data:/prometheus 
       - ./prometheus/config:/etc/prometheus
-      - ./prometheus/volume:/prometheus
+      
     ports:
       - 9090:9090 # 접근 포트 설정 (컨테이너 외부:컨테이너 내부)
     command: # web.enalbe-lifecycle은 api 재시작없이 설정파일들을 reload 할 수 있게 해줌
@@ -19,21 +19,22 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
       - '--storage.tsdb.max-block-duration=2h'
       #- '--external-label=cluster=prod'     # 클러스터 식별 레이블
 
-    restart: always
+    restart: unless-stopped
     networks:
       - promnet
   
   thanos-sidecar:
     image: thanosio/thanos:v0.37.2
+    user: "1000:1000"  # Prometheus와 동일 UID/GID
     command:
       - sidecar
-      - --tsdb.path=/prometheus
-      - --http-address=0.0.0.0:10902
-      - --grpc-address=0.0.0.0:10901
-      - --prometheus.url=http://prometheus:9090
-      - --objstore.config-file=/etc/thanos/bucket.yaml
+      - '--http-address=0.0.0.0:10902'
+      - '--grpc-address=0.0.0.0:10901'
+      - '--prometheus.url=http://prometheus:9090'
+      - '--objstore.config-file=/etc/thanos/bucket.yml'
+      - '--tsdb.path=/prometheus'  # TSDB 경로 명시적 지정
     volumes:
-      - ./prometheus_data:/prometheus # Prometheus와 동일 경로 사용
+      - prometheus_data:/prometheus # Prometheus와 동일 경로 사용
       - ./thanos/bucket.yaml:/etc/thanos/bucket.yaml  # MinIO connection
     ports:
       - "10901:10901"  
@@ -41,7 +42,8 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
       - promnet
     depends_on:
       - prometheus
-
+    restart: unless-stopped
+    
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -73,6 +75,13 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
       - "9100:9100"
     networks:
       - promnet
+volumes:
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./prometheus_data  # 호스트 디렉토리 매핑
+      o: uid=1000,gid=1000,mode=0775  # 권한 설정
 
 networks:
   promnet:
