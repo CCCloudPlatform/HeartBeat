@@ -9,25 +9,30 @@ services:
       MINIO_ROOT_PASSWORD: thanos123!
     volumes:
       - ./minio_data:/data
-    ports:
-      - "9000:9000" # minio service port
-      - "9001:9001" #minio console port
-    networks:
-      - thanos-net
+    # ports:
+    #   - "9000:9000" # minio service port
+    #   - "9001:9001" #minio console port
+    # networks:
+    #   - thanos-net
+    network_mode: "host"
+
 
   thanos-query:
     image: thanosio/thanos:v0.37.2
     command:
       - query
       - --http-address=0.0.0.0:10904
-      - --store=thanos-sidecar:10901  # VM1의 실제 IP 입력
-      - --store=thanos-sidecar:10901  # VM2의 실제 IP 입력
+      # - --store=thanos-sidecar:10901  # VM1의 실제 IP 입력
+      # - --store=thanos-sidecar:10901  # VM2의 실제 IP 입력
+      - --store=100.98.169.68:10901  # Tailscale IP로 직접 지정
+      - --store=100.109.107.39:10901  # Tailscale IP로 직접 지정
       - --query.replica-label=replica  # 데이터 중복 제거
-    ports:
-      - "10904:10904"
-    networks:
-      - thanos-net
+    network_mode: "host"
+    # ports:
+    #   - "10904:10904"
+    # networks:
+    #   - thanos-net
 
-networks:
-  thanos-net:
-    driver: bridge
+# networks:
+#   thanos-net:
+#     driver: bridge
