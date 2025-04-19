@@ -16,8 +16,6 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
       - '--storage.tsdb.retention.time=6h'             # Prometheus는 최근 6시간만 유지
       - '--storage.tsdb.min-block-duration=2h'         # block 단위 2시간
       - '--storage.tsdb.max-block-duration=2h'
-      - '--external-label=cluster=prod'         # Thanos 필수
-      - '--external-label=replica=vm1'          # 고유 레이블
       #- '--external-label=cluster=prod'     # 클러스터 식별 레이블
 
     restart: always

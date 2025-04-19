@@ -8,6 +8,7 @@ global:
   external_labels:
     #monitor: 'heartbeat-monitor'       # 기본적으로 붙여줄 라벨
     cluster: 'prod'     # 기본적으로 붙여줄 라벨
+    replica: 'vm1'    # 기본적으로 붙여줄 라벨 
   query_log_file: query_log_file.log # prometheus의 쿼리 로그들을 기록, 없으면 기록안함
 
 # 규칙을 로딩하고 'evaluation_interval' 설정에 따라 정기적으로 평가한다.
