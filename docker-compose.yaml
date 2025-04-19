@@ -12,10 +12,12 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
     command: # web.enalbe-lifecycle은 api 재시작없이 설정파일들을 reload 할 수 있게 해줌
       - '--web.enable-lifecycle'
       - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=6h'             # Prometheus는 최근 6시간만 유지
       - '--storage.tsdb.min-block-duration=2h'         # block 단위 2시간
       - '--storage.tsdb.max-block-duration=2h'
-
+      - '--external-label=cluster=prod'         # Thanos 필수
+      - '--external-label=replica=vm1'          # 고유 레이블
       #- '--external-label=cluster=prod'     # 클러스터 식별 레이블
 
     restart: always
@@ -26,6 +28,7 @@ services:       # 이 항목 밑에 실행하려는 컨테이너 들을 정의
     image: thanosio/thanos:v0.37.2
     command:
       - sidecar
+      - --tsdb.path=/prometheus
       - --http-address=0.0.0.0:10902
       - --grpc-address=0.0.0.0:10901
       - --prometheus.url=http://prometheus:9090
